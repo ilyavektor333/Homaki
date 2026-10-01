@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ event_title }} — GameSite{% endblock %}
+{% block content %}
+<div class="account-layout simple-section-layout event-page">
+    {% include "sidebar.html" %}
+    <section class="simple-section">
+        <div class="section-caption">МЕРОПРИЯТИЕ</div>
+        <div class="simple-header-row">
+            <div>
+                <h1>{{ event_title }}</h1>
+                <p>Выберите день месяца, чтобы открыть список активного состава и отметить присутствие.</p>
+            </div>
+            <div class="count-badge">{{ attendance_mode_name }}</div>
+        </div>
+
+        <div class="event-calendar-toolbar">
+            <a class="calendar-nav" href="/events/{{ event_type }}?year={{ prev_year }}&month={{ prev_month }}">‹</a>
+            <form method="get" action="/events/{{ event_type }}" class="calendar-month-form">
+                <select name="month" aria-label="Месяц">
+                    {% for idx in range(1,13) %}
+                    <option value="{{ idx }}" {% if idx == month %}selected{% endif %}>{{ MONTH_NAMES_RU[idx-1] }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="year" value="{{ year }}" min="2020" max="2100" aria-label="Год">
+                <button type="submit">Показать</button>
+            </form>
+            <div class="event-month-title">{{ month_name }} {{ year }}</div>
+            <a class="calendar-nav" href="/events/{{ event_type }}?year={{ next_year }}&month={{ next_month }}">›</a>
+        </div>
+
+        <div class="calendar-grid event-calendar-grid">
+            {% for day_name in WEEKDAY_NAMES_RU %}<div class="calendar-weekday">{{ day_name }}</div>{% endfor %}
+            {% for week in calendar %}
+                {% for cell in week %}
+                    {% if cell %}
+                    <button type="button" class="calendar-day js-event-day {% if cell.iso == today_iso %}today{% endif %}" data-event-type="{{ event_type }}" data-event-date="{{ cell.iso }}">
+                        <span class="calendar-day-top"><b>{{ cell.day }}</b><small>{{ cell.weekday }}</small></span>
+                        <span class="calendar-day-status">Открыть</span>
+                    </button>
+                    {% else %}
+                    <div class="calendar-day calendar-day-empty"></div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<div id="attendance-day-modal" class="catalog-modal" aria-hidden="true">
+    <div class="catalog-backdrop" data-attendance-close></div>
+    <section class="catalog-dialog attendance-dialog" role="dialog" aria-modal="true" aria-labelledby="attendance-day-title">
+        <header class="catalog-header">
+            <div>
+                <div class="catalog-kicker">{{ event_title }}</div>
+                <h2 id="attendance-day-title">Выбор присутствия</h2>
+                <p id="attendance-day-subtitle" class="catalog-subtitle"></p>
+            </div>
+            <button type="button" class="catalog-close" data-attendance-close aria-label="Закрыть">×</button>
+        </header>
+        <div class="attendance-day-note" id="attendance-day-note"></div>
+        <div id="attendance-day-players" class="attendance-player-list">
+            <div class="empty-state"><div class="empty-state-icon">⌛</div><p>Загрузка...</p></div>
+        </div>
+    </section>
+</div>
+{% endblock %}

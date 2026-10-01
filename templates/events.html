@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Мероприятия — GameSite{% endblock %}
+{% block content %}
+<div class="account-layout simple-section-layout">
+    {% include "sidebar.html" %}
+    <section class="simple-section">
+        <div class="section-caption">КЛАН</div>
+        <div class="simple-header-row">
+            <div>
+                <h1>Присутствие на Мероприятиях</h1>
+                <p>Раздел подготовлен под учёт мероприятий и присутствия игроков.</p>
+            </div>
+        </div>
+        {% if events %}
+        <div class="table-card">
+            <table class="data-table">
+                <thead><tr><th>Мероприятие</th><th>Дата</th><th>Мой статус</th></tr></thead>
+                <tbody>
+                {% for event in events %}
+                <tr>
+                    <td>{{ event.name }}</td>
+                    <td>{{ event.event_date or '—' }}</td>
+                    <td>
+                        {% set status = attendance.get(event.id) %}
+                        {% if status == 'present' %}<span class="status-pill good">Присутствовал</span>
+                        {% elif status == 'absent' %}<span class="status-pill bad">Отсутствовал</span>
+                        {% else %}<span class="status-pill">Нет отметки</span>{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📅</div>
+            <h2>Мероприятий пока нет</h2>
+            <p>Когда в систему будут добавлены мероприятия, здесь появится история присутствия.</p>
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

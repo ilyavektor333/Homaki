@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Регистрация — GameSite{% endblock %}
+{% block content %}
+<section class="auth-card">
+    <div class="auth-icon">+</div>
+    <h1>Регистрация</h1>
+    <p class="muted">Создай свой аккаунт</p>
+    {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+    <form method="post" action="/register">
+        <label>Логин</label>
+        <input type="text" name="username" value="{{ username or '' }}" minlength="3" maxlength="50" autocomplete="username" required>
+        <label>Пароль</label>
+        <input type="password" name="password" minlength="6" autocomplete="new-password" required>
+        <label>Повтори пароль</label>
+        <input type="password" name="password_confirm" minlength="6" autocomplete="new-password" required>
+        <button class="button primary full" type="submit">Создать аккаунт</button>
+    </form>
+    <p class="bottom-link">Уже есть аккаунт? <a href="/login">Войти</a></p>
+</section>
+{% endblock %}

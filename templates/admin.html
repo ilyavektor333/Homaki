@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Управление Кланом — GameSite{% endblock %}
+{% block content %}
+<div class="account-layout simple-section-layout">
+    {% include "sidebar.html" %}
+    <section class="simple-section admin-section">
+        {% if request.query_params.get('saved') == 'attendance' %}
+        <div class="save-toast">Права отметки сохранены</div>
+        {% elif request.query_params.get('saved') %}
+        <div class="save-toast">Должность сохранена</div>
+        {% endif %}
+        <div class="section-caption">УПРАВЛЕНИЕ КЛАНОМ</div>
+        <div class="simple-header-row">
+            <div>
+                <h1>Должности игроков</h1>
+                <p>Только системный аккаунт Admin может изменять должности. В дальнейшем права будут привязаны к этой иерархии.</p>
+            </div>
+            <div class="count-badge">Пользователей: {{ members|length }}</div>
+        </div>
+
+        <div class="admin-role-list">
+            {% for member in members %}
+            <div class="admin-role-card {{ role_css_classes.get(member.role or 'fighter', 'role-fighter') }}">
+                <div class="admin-role-user">
+                    <div class="admin-role-avatar">
+                        {% if member.character_card %}
+                        <img src="{{ member.character_card }}" alt="">
+                        {% else %}
+                        <img src="{{ url_for('static', path='game_catalog/class/' ~ (member.class_key or default_class_key) ~ '/icon.png') }}" alt="">
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="admin-role-name">{{ member.game_nickname or member.username }}</div>
+                        <div class="admin-role-login">Логин: {{ member.username }}</div>
+                        <div class="admin-role-current {{ role_css_classes.get(member.role or 'fighter', 'role-fighter') }}">
+                            {{ role_options.get(member.role or 'fighter', 'Боец') }}
+                        </div>
+                    </div>
+                </div>
+                <form method="post" action="/admin/set-role" class="admin-role-form">
+                    <input type="hidden" name="user_id" value="{{ member.id }}">
+                    <label for="role-{{ member.id }}">Должность</label>
+                    <select id="role-{{ member.id }}" name="role" {% if member.username == 'Admin' %}disabled{% endif %}>
+                        {% for role_key, role_name in admin_roles.items() %}
+                        <option value="{{ role_key }}" {% if (member.role or 'fighter') == role_key %}selected{% endif %}>{{ role_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" {% if member.username == 'Admin' %}disabled{% endif %}>Сохранить</button>
+                    {% if member.username == 'Admin' %}
+                    <span class="admin-fixed-note">Системный аккаунт</span>
+                    {% endif %}
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="admin-event-permissions">
+            <div class="section-caption">ПРАВА ОТМЕТКИ</div>
+            <h2>Кто может отмечать присутствие</h2>
+            <p>По умолчанию каждый активный игрок может отмечать только себя. Системный аккаунт может изменить это право для каждого мероприятия в любое время.</p>
+            <div class="admin-event-settings-list">
+            {% for key, name in event_types.items() %}
+                <div class="admin-event-setting-card">
+                    <div>
+                        <strong>{{ name }}</strong>
+                        <small>Текущее правило: {{ attendance_modes.get(attendance_settings.get(key, 'self')) }}</small>
+                    </div>
+                    <form method="post" action="/admin/set-attendance-permission" class="admin-role-form">
+                        <input type="hidden" name="event_type" value="{{ key }}">
+                        <select name="attendance_mode">
+                            {% for mode_key, mode_name in attendance_modes.items() %}
+                            <option value="{{ mode_key }}" {% if attendance_settings.get(key, 'self') == mode_key %}selected{% endif %}>{{ mode_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit">Сохранить</button>
+                    </form>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

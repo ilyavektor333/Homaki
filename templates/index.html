@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}GameSite{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-badge">GAME PLATFORM</div>
+    <h1>Добро пожаловать в <span>GameSite</span></h1>
+    {% if user %}
+        <p>Рады видеть тебя снова, <strong>{{ user.username }}</strong>.</p>
+        <div class="actions">
+            <a class="button primary" href="/profile">Открыть личный кабинет</a>
+            <a class="button secondary" href="/logout">Выйти</a>
+        </div>
+    {% else %}
+        <p>Создай аккаунт и начни пользоваться возможностями сайта.</p>
+        <div class="actions">
+            <a class="button primary" href="/register">Создать аккаунт</a>
+            <a class="button secondary" href="/login">Войти</a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

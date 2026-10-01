@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Состав Клана — GameSite{% endblock %}
+{% block content %}
+<div class="account-layout simple-section-layout">
+    {% include "sidebar.html" %}
+    <section class="simple-section">
+        <div class="section-caption">КЛАН</div>
+        <div class="simple-header-row">
+            <div>
+                <h1>Состав Клана</h1>
+                <p>В основном составе отображаются только игроки, которых системный аккаунт отметил как активных.</p>
+            </div>
+            <div class="count-badge">Активный состав: {{ members|length }} / {{ active_limit }}</div>
+        </div>
+
+        {% if members %}
+        <div class="member-grid">
+            {% for member_view in members_view %}
+            {% set member = member_view.user %}
+            <button type="button" class="member-card member-card-button js-member-card {{ role_css_classes.get(member.role or 'fighter', 'role-fighter') }}" data-member-id="{{ member.id }}">
+                <div class="member-card-image">
+                    {% if member.character_card %}
+                    <img src="{{ member.character_card }}" alt="{{ member.game_nickname }}">
+                    {% else %}
+                    <img src="{{ url_for('static', path='game_catalog/class/' ~ (member.class_key or default_class_key) ~ '/icon.png') }}" alt="">
+                    {% endif %}
+                </div>
+                <div class="member-card-body">
+                    <div class="member-name">{{ member.game_nickname }}</div>
+                    <div class="member-role-badge {{ role_css_classes.get(member.role or 'fighter', 'role-fighter') }}">{{ role_options.get(member.role or 'fighter', 'Боец') }}</div>
+                    <div class="member-class">{{ class_options.get(member.class_key or default_class_key, 'Боец Авангарда') }}</div>
+                    <div class="member-stats">
+                        <span>⚔ {{ member.attack or 0 }}</span>
+                        <span>🛡 {{ member.defense or 0 }}</span>
+                        <span>🎯 {{ member.accuracy or 0 }}</span>
+                    </div>
+                    <div class="member-open-hint">Нажмите, чтобы посмотреть снаряжение</div>
+                </div>
+                <span class="member-card-glow" aria-hidden="true"></span>
+            </button>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">👥</div>
+            <h2>Пока нет заполненных карточек</h2>
+            <p>Как только игрок сохранит игровой ник, его карточка появится здесь.</p>
+        </div>
+        {% endif %}
+
+        {% if inactive_members_view %}
+        <details class="inactive-members-panel">
+            <summary><span>Неактивный состав</span><strong>{{ inactive_members_view|length }}</strong></summary>
+            <div class="inactive-members-content">
+                <p class="inactive-members-note">Эти игроки не входят в текущий активный состав и скрыты по умолчанию.</p>
+                <div class="member-grid">
+                    {% for member_view in inactive_members_view %}
+                    {% set member = member_view.user %}
+                    <button type="button" class="member-card member-card-button inactive-member-card {{ role_css_classes.get(member.role or 'fighter', 'role-fighter') }}" data-member-id="{{ member.id }}">
+                        <div class="member-card-image">
+                            {% if member.character_card %}
+                            <img src="{{ member.character_card }}" alt="{{ member.game_nickname }}">
+                            {% else %}
+                            <img src="{{ url_for('static', path='game_catalog/class/' ~ (member.class_key or default_class_key) ~ '/icon.png') }}" alt="">
+                            {% endif %}
+                        </div>
+                        <div class="member-card-body">
+                            <div class="member-name">{{ member.game_nickname }}</div>
+                            <div class="member-role-badge {{ role_css_classes.get(member.role or 'fighter', 'role-fighter') }}">{{ role_options.get(member.role or 'fighter', 'Боец') }}</div>
+                            <div class="member-class">{{ class_options.get(member.class_key or default_class_key, 'Боец Авангарда') }}</div>
+                            <div class="member-stats">
+                                <span>⚔ {{ member.attack or 0 }}</span>
+                                <span>🛡 {{ member.defense or 0 }}</span>
+                                <span>🎯 {{ member.accuracy or 0 }}</span>
+                            </div>
+                            <div class="member-open-hint">Нажмите, чтобы посмотреть снаряжение</div>
+                        </div>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </details>
+        {% endif %}
+    </section>
+</div>
+
+<div id="member-equipment-modal" class="member-modal" aria-hidden="true">
+    <div class="member-modal-backdrop" data-member-close></div>
+    <section class="member-modal-dialog member-mini-dialog" role="dialog" aria-modal="true" aria-labelledby="member-modal-title">
+        <div class="member-modal-header member-mini-header">
+            <div>
+                <div class="catalog-kicker">СОСТАВ КЛАНА</div>
+                <h2 id="member-modal-title">Игрок</h2>
+                <div id="member-modal-role" class="member-modal-role role-fighter">Боец</div>
+                <div id="member-modal-class" class="catalog-subtitle"></div>
+            </div>
+            <button type="button" class="catalog-close" data-member-close aria-label="Закрыть">×</button>
+        </div>
+        <div id="member-mini-profile" class="member-mini-profile"></div>
+    </section>
+</div>
+<script id="clan-members-data" type="application/json">{{ (members_view + inactive_members_view) | tojson }}</script>
+{% endblock %}

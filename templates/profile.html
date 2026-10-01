@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Профиль игрока — GameSite{% endblock %}
+{% block content %}
+<div id="class-modal" class="catalog-modal" aria-hidden="true">
+    <div class="catalog-backdrop" data-class-close></div>
+    <section class="catalog-dialog class-dialog" role="dialog" aria-modal="true" aria-labelledby="class-title">
+        <div class="catalog-header">
+            <div>
+                <div class="catalog-kicker">ИГРОВОЙ ПРОФИЛЬ</div>
+                <h2 id="class-title">Выбор класса</h2>
+                <div class="catalog-subtitle">Оружие и экипировка в каталоге будут отфильтрованы по выбранному классу.</div>
+            </div>
+            <button type="button" class="catalog-close" data-class-close aria-label="Закрыть">×</button>
+        </div>
+        <div id="class-grid" class="class-grid">
+            {% for key, name in class_options.items() %}
+            <button type="button" class="class-option" data-class-key="{{ key }}">
+                <span class="class-option-icon-wrap">
+                    <img class="class-option-icon" src="{{ url_for('static', path='game_catalog/class/' ~ key ~ '/icon.png') }}" alt=""
+                         onerror="this.style.display='none'; this.parentElement.querySelector('.class-option-fallback').style.display='grid';">
+                    <span class="class-option-fallback">⚔</span>
+                </span>
+                <strong>{{ name }}</strong>
+            </button>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<div class="account-layout">
+    {% include "sidebar.html" %}
+    <section class="player-profile">
+    {% if request.query_params.get('saved') %}
+    <div class="save-toast">Профиль сохранён</div>
+    {% endif %}
+
+    <form class="player-form" method="post" action="/profile/save">
+        <div class="player-nickname-block">
+            <div class="section-caption">ИГРОВОЙ ПРОФИЛЬ</div>
+            <div class="nickname-row">
+                <div class="nickname-field">
+                    <label class="nickname-label" for="game_nickname">Игровой ник</label>
+                    <input id="game_nickname" class="nickname-input" name="game_nickname" maxlength="50"
+                           value="{{ user.game_nickname or '' }}" placeholder="Введите игровой ник">
+                </div>
+                <div class="class-choice">
+                    <div class="class-choice-name">{{ class_options.get(user.class_key or default_class_key, class_options.get(default_class_key, "Боец Авангарда")) }}</div>
+                    <button type="button" class="class-icon-button" id="open-class-modal" title="Выбрать класс">
+                        <img class="class-selected-icon" src="{{ url_for('static', path='game_catalog/class/' ~ (user.class_key or default_class_key) ~ '/icon.png') }}" alt="{{ class_options.get(user.class_key or default_class_key, class_options.get(default_class_key, "Боец Авангарда")) }}"
+                             onerror="this.style.display='none'; this.parentElement.querySelector('.class-icon-fallback').style.display='grid';">
+                        <span class="class-icon-fallback">⚔</span>
+                        <span class="class-icon-hint">СМЕНИТЬ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-icon attack-icon">⚔</span>
+                <div><span class="stat-name">АТАКА</span><input class="stat-input" name="attack" type="number" min="0" value="{{ user.attack or 0 }}"></div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon defense-icon">🛡</span>
+                <div><span class="stat-name">ЗАЩИТА</span><input class="stat-input" name="defense" type="number" min="0" value="{{ user.defense or 0 }}"></div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon accuracy-icon">🎯</span>
+                <div><span class="stat-name">ТОЧНОСТЬ</span><input class="stat-input" name="accuracy" type="number" min="0" value="{{ user.accuracy or 0 }}"></div>
+            </div>
+        </div>
+
+        <div class="profile-stage">
+            <section class="character-panel">
+                <div class="panel-title">КАРТОЧКА ПЕРСОНАЖА</div>
+                <button type="button" class="character-card js-catalog-slot {% if not user.character_card %}empty-card{% endif %}" data-slot="character_card" title="Открыть каталог карточек">
+                    {% if user.character_card %}
+                    <img src="{{ user.character_card }}" alt="Персонаж">
+                    <span class="image-edit-hint">ВЫБРАТЬ ДРУГУЮ</span>
+                    {% else %}
+                    <div class="card-placeholder-icon">♙</div>
+                    <div class="card-placeholder-text">ВЫБРАТЬ КАРТОЧКУ</div>
+                    <div class="card-placeholder-sub">Нажмите здесь и выберите изображение из каталога сайта</div>
+                    {% endif %}
+                </button>
+                {% if user.character_card %}
+                <button type="button" class="image-remove-button" data-remove-slot="character_card">СНЯТЬ КАРТОЧКУ</button>
+                {% endif %}
+                <div class="coming-note">Карточки и предметы выбираются из общего каталога изображений сайта.</div>
+            </section>
+
+            <section class="equipment-panel">
+                <div class="panel-title">СНАРЯЖЕНИЕ</div>
+                <div class="equipment-grid">
+                    {% set slots = [
+                        ('weapon','ОРУЖИЕ','slot-weapon'),
+                        ('gloves','ПЕРЧАТКИ','slot-gloves'),
+                        ('cloak','ПЛАЩ','slot-cloak'),
+
+                        ('earring_1','СЕРЬГА','slot-earring-1'),
+                        ('earring_2','СЕРЬГА','slot-earring-2'),
+                        ('necklace','ОЖЕРЕЛЬЕ','slot-necklace'),
+                        ('belt','ПОЯС','slot-belt'),
+                        ('bracelet_1','БРАСЛЕТ','slot-bracelet-1'),
+                        ('bracelet_2','БРАСЛЕТ','slot-bracelet-2'),
+                        ('ring_1','КОЛЬЦО','slot-ring-1'),
+                        ('ring_2','КОЛЬЦО','slot-ring-2'),
+                        ('totem','ТОТЕМ','slot-totem'),
+                        ('seal','ПЕЧАТЬ','slot-seal'),
+
+                        ('hat','ШЛЯПА','slot-hat'),
+                        ('body','ТЕЛО','slot-body'),
+                        ('pants','ШТАНЫ','slot-pants'),
+                        ('boots','БОТИНКИ','slot-boots')
+                    ] %}
+                    {% for field, label, placement in slots %}
+                    <div class="equipment-slot-wrap {{ placement }}">
+                        <button type="button" class="equipment-slot js-catalog-slot" data-slot="{{ field }}" title="Открыть каталог">
+                            {% if user[field] %}<img src="{{ user[field] }}" alt="{{ user[field] | catalog_name }}"><span class="image-edit-hint">ВЫБРАТЬ ДРУГОЙ</span>{% else %}<span class="slot-mark">+</span><span class="slot-upload-text">КАТАЛОГ</span>{% endif %}
+                            <span class="slot-label">{{ (user[field] | catalog_name) if user[field] else label }}</span>
+                        </button>
+                        {% if user[field] %}<button type="button" class="slot-remove" data-remove-slot="{{ field }}" title="Очистить слот">×</button>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="equipment-bottom">
+                    {% set bottom_slots = [
+                        ('symbol','СИМВОЛ'),
+                        ('artifact','АРТЕФАКТ')
+                    ] %}
+                    {% for field, label in bottom_slots %}
+                    <div class="equipment-slot-wrap equipment-bottom-slot-wrap">
+                        <button type="button" class="equipment-slot equipment-bottom-slot js-catalog-slot" data-slot="{{ field }}" title="Открыть каталог">
+                            {% if user[field] %}<img src="{{ user[field] }}" alt="{{ user[field] | catalog_name }}"><span class="image-edit-hint">ВЫБРАТЬ ДРУГОЙ</span>{% else %}<span class="slot-mark">+</span><span class="slot-upload-text">КАТАЛОГ</span>{% endif %}
+                            <span class="slot-label">{{ (user[field] | catalog_name) if user[field] else label }}</span>
+                        </button>
+                        {% if user[field] %}<button type="button" class="slot-remove" data-remove-slot="{{ field }}" title="Очистить слот">×</button>{% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="equipment-slot equipment-bottom-slot slot-locked" title="ЗАКРЫТЫЙ СЛОТ">
+                        <span class="slot-lock">🔒</span>
+                        <span class="slot-label">ЗАКРЫТ</span>
+                    </div>
+                </div>
+                <div class="coming-note">Все изображения берутся из единого каталога сайта. Загрузка файлов с компьютера из профиля отключена.</div>
+            </section>
+        </div>
+
+        <div id="catalog-status" class="upload-status" aria-live="polite"></div>
+
+        <div class="profile-bottom">
+            <div class="account-hint">Аккаунт #{{ user.id }} · {{ user.username }}</div>
+            <button class="button primary save-profile" type="submit">СОХРАНИТЬ ПРОФИЛЬ</button>
+        </div>
+    </form>
+</section>
+</div>
+
+<div id="catalog-modal" class="catalog-modal" aria-hidden="true">
+    <div class="catalog-backdrop" data-catalog-close></div>
+    <section class="catalog-dialog" role="dialog" aria-modal="true" aria-labelledby="catalog-title">
+        <div class="catalog-header">
+            <div>
+                <div class="catalog-kicker">БАЗА ИЗОБРАЖЕНИЙ</div>
+                <h2 id="catalog-title">Выбор изображения</h2>
+                <div id="catalog-subtitle" class="catalog-subtitle"></div>
+            </div>
+            <button type="button" class="catalog-close" data-catalog-close aria-label="Закрыть">×</button>
+        </div>
+        <div id="catalog-tier-tabs" class="catalog-tier-tabs" hidden>
+            <button type="button" class="catalog-tier active" data-tier="T1">T1</button>
+            <button type="button" class="catalog-tier" data-tier="T2">T2</button>
+            <button type="button" class="catalog-tier" data-tier="T3">T3</button>
+        </div>
+        <div id="catalog-grid" class="catalog-grid"></div>
+        <div id="catalog-empty" class="catalog-empty" hidden>В этой категории пока нет изображений.</div>
+    </section>
+</div>
+{% endblock %}

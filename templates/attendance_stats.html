@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Статистика присутствия — GameSite{% endblock %}
+{% block content %}
+<div class="account-layout simple-section-layout">
+    {% include "sidebar.html" %}
+    <section class="simple-section">
+        <div class="section-caption">СТАТИСТИКА</div>
+        <div class="simple-header-row">
+            <div>
+                <h1>Статистика присутствия</h1>
+                <p>{{ period_label }}{% if period != 'all' %}: {{ range_start }} — {{ range_end }}{% endif %}</p>
+            </div>
+            <div class="stats-filter-box">
+                <form method="get" action="/attendance-stats" class="stats-filter-form">
+                    <select name="period">
+                        <option value="week" {% if period == 'week' %}selected{% endif %}>За неделю</option>
+                        <option value="month" {% if period == 'month' %}selected{% endif %}>За месяц</option>
+                        <option value="all" {% if period == 'all' %}selected{% endif %}>За всё время</option>
+                    </select>
+                    <select name="event_type">
+                        <option value="all" {% if event_type_filter == 'all' %}selected{% endif %}>Оба мероприятия</option>
+                        {% for key, name in event_types.items() %}
+                        <option value="{{ key }}" {% if event_type_filter == key %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Показать</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="attendance-stat-total-grid">
+            <div class="attendance-stat-total"><span>Вечерний прайм</span><strong>{{ totals.evening_prime }}</strong></div>
+            <div class="attendance-stat-total"><span>Данж Гильдии</span><strong>{{ totals.guild_dungeon }}</strong></div>
+            <div class="attendance-stat-total"><span>Всего посещений</span><strong>{{ totals.total }}</strong></div>
+        </div>
+
+        <div class="table-card">
+            <table class="data-table attendance-stats-table">
+                <thead>
+                    <tr>
+                        <th>Игрок</th>
+                        <th>Должность</th>
+                        <th>Вечерний прайм</th>
+                        <th>Данж Гильдии</th>
+                        <th>Всего</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in summary %}
+                    <tr>
+                        <td><strong>{{ row.user.game_nickname or row.user.username }}</strong></td>
+                        <td>{{ role_options.get(row.user.role or 'fighter', 'Боец') }}</td>
+                        <td>{{ row.evening_prime }}</td>
+                        <td>{{ row.guild_dungeon }}</td>
+                        <td><strong>{{ row.total }}</strong></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5">За выбранный период отметок пока нет.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Активный состав — GameSite{% endblock %}
+{% block content %}
+<div class="account-layout simple-section-layout">
+    {% include "sidebar.html" %}
+    <section class="simple-section admin-section">
+        {% if saved %}<div class="save-toast">Активный состав сохранён</div>{% endif %}
+        {% if error == "selected_limit" %}<div class="save-toast error-toast">Выбрано игроков больше установленного лимита.</div>{% endif %}
+        <div class="section-caption">УПРАВЛЕНИЕ КЛАНОМ</div>
+        <div class="simple-header-row">
+            <div>
+                <h1>Активный состав</h1>
+                <p>Только системный аккаунт может отмечать игроков активного состава и изменять его максимальную численность.</p>
+            </div>
+            <div class="count-badge">Активных: {{ active_count }} / {{ active_limit }}</div>
+        </div>
+
+        <form method="post" action="/admin/active-roster/save" class="active-roster-form">
+            <div class="active-roster-limit-box">
+                <label for="active_roster_limit">Максимум человек в активном составе</label>
+                <input id="active_roster_limit" name="active_roster_limit" type="number" min="1" max="999" value="{{ active_limit }}">
+                <span>Текущий лимит: {{ active_limit }}</span>
+            </div>
+
+            <div class="active-roster-list">
+                {% if members %}
+                    {% for member in members %}
+                    <label class="active-roster-member {{ role_css_classes.get(member.role or 'fighter', 'role-fighter') }}">
+                        <input type="checkbox" name="active_user_ids" value="{{ member.id }}" {% if member.active_roster %}checked{% endif %}>
+                        <span class="active-roster-avatar">
+                            {% if member.character_card %}<img src="{{ member.character_card }}" alt="">{% else %}<img src="{{ url_for('static', path='game_catalog/class/' ~ (member.class_key or default_class_key) ~ '/icon.png') }}" alt="">{% endif %}
+                        </span>
+                        <span class="active-roster-info">
+                            <strong>{{ member.game_nickname or member.username }}</strong>
+                            <small>{{ role_options.get(member.role or 'fighter', 'Боец') }} · {{ class_options.get(member.class_key or default_class_key, 'Боец Авангарда') }}</small>
+                        </span>
+                        <span class="active-roster-state">{% if member.active_roster %}АКТИВЕН{% else %}НЕАКТИВЕН{% endif %}</span>
+                    </label>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state"><div class="empty-state-icon">👥</div><h2>Нет заполненных профилей</h2><p>Игроки появятся здесь после заполнения игрового ника.</p></div>
+                {% endif %}
+            </div>
+
+            <div class="active-roster-actions">
+                <button type="submit" class="primary-action">Сохранить активный состав</button>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

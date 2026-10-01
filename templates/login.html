@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Вход — GameSite{% endblock %}
+{% block content %}
+<section class="auth-card">
+    <div class="auth-icon">↪</div>
+    <h1>Вход</h1>
+    <p class="muted">Войди в свой аккаунт GameSite</p>
+    {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+    <form method="post" action="/login">
+        <label>Логин</label>
+        <input type="text" name="username" value="{{ username or '' }}" minlength="3" maxlength="50" autocomplete="username" required>
+        <label>Пароль</label>
+        <input type="password" name="password" autocomplete="current-password" required>
+        <button class="button primary full" type="submit">Войти</button>
+    </form>
+    <p class="bottom-link">Нет аккаунта? <a href="/register">Зарегистрироваться</a></p>
+</section>
+{% endblock %}

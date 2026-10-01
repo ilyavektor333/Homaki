@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Ценные вещи — GameSite{% endblock %}
+{% block content %}
+<div class="account-layout simple-section-layout">
+    {% include "sidebar.html" %}
+    <section class="simple-section">
+        <div class="section-caption">КЛАН</div>
+        <div class="simple-header-row">
+            <div>
+                <h1>Статистика выдачи ценных вещей</h1>
+                <p>Здесь будет отображаться история выдачи ценных предметов игрокам.</p>
+            </div>
+            <div class="count-badge">Выдач: {{ items|length }}</div>
+        </div>
+        {% if items %}
+        <div class="table-card">
+            <table class="data-table">
+                <thead><tr><th>Предмет</th><th>Игрок</th><th>Дата выдачи</th></tr></thead>
+                <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ users[item.issued_to_user_id].game_nickname if item.issued_to_user_id and item.issued_to_user_id in users else '—' }}</td>
+                    <td>{{ item.issued_at or '—' }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">💎</div>
+            <h2>Выдач пока нет</h2>
+            <p>После добавления данных о ценных вещах здесь появится статистика по игрокам.</p>
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

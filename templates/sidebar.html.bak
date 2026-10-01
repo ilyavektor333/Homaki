@@ -1,0 +1,15 @@
+<aside class="profile-sidebar">
+    <div class="sidebar-title">РАЗДЕЛЫ КЛАНА</div>
+    <a class="sidebar-link {% if active_tab == 'profile' %}active{% endif %}" href="/profile">
+        <span class="sidebar-icon">⚔</span><span>Профиль игрока</span>
+    </a>
+    <a class="sidebar-link {% if active_tab == 'clan' %}active{% endif %}" href="/clan">
+        <span class="sidebar-icon">👥</span><span>Состав Клана</span>
+    </a>
+    <a class="sidebar-link {% if active_tab == 'events' %}active{% endif %}" href="/events">
+        <span class="sidebar-icon">📅</span><span>Присутствие на Мероприятиях</span>
+    </a>
+    <a class="sidebar-link {% if active_tab == 'valuable' %}active{% endif %}" href="/valuable-items">
+        <span class="sidebar-icon">💎</span><span>Статистика выдачи ценных вещей</span>
+    </a>
+</aside>

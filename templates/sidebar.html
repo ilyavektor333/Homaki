@@ -1,0 +1,29 @@
+<aside class="profile-sidebar">
+    <div class="sidebar-title">РАЗДЕЛЫ КЛАНА</div>
+    <a class="sidebar-link {% if active_tab == 'profile' %}active{% endif %}" href="/profile">
+        <span class="sidebar-icon">⚔</span><span>Профиль игрока</span>
+    </a>
+    <a class="sidebar-link {% if active_tab == 'clan' %}active{% endif %}" href="/clan">
+        <span class="sidebar-icon">👥</span><span>Состав Клана</span>
+    </a>
+    <a class="sidebar-link {% if active_tab == 'evening_prime' %}active{% endif %}" href="/events/evening_prime">
+        <span class="sidebar-icon">🌆</span><span>Вечерний прайм</span>
+    </a>
+    <a class="sidebar-link {% if active_tab == 'guild_dungeon' %}active{% endif %}" href="/events/guild_dungeon">
+        <span class="sidebar-icon">🏰</span><span>Данж Гильдии</span>
+    </a>
+    <a class="sidebar-link {% if active_tab == 'attendance_stats' %}active{% endif %}" href="/attendance-stats">
+        <span class="sidebar-icon">📊</span><span>Статистика присутствия</span>
+    </a>
+    <a class="sidebar-link {% if active_tab == 'valuable' %}active{% endif %}" href="/valuable-items">
+        <span class="sidebar-icon">💎</span><span>Статистика выдачи ценных вещей</span>
+    </a>
+    {% if is_superadmin %}
+    <a class="sidebar-link {% if active_tab == 'admin' %}active{% endif %}" href="/admin">
+        <span class="sidebar-icon">👑</span><span>Управление должностями</span>
+    </a>
+    <a class="sidebar-link {% if active_tab == 'active_roster' %}active{% endif %}" href="/admin/active-roster">
+        <span class="sidebar-icon">✅</span><span>Активный состав</span>
+    </a>
+    {% endif %}
+</aside>
